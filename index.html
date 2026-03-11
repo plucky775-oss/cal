@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배전공사 설계자용 계산기</title>
+    <style>
+        body { font-family: 'sans-serif'; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .tab-menu { display: flex; cursor: pointer; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
+        .tab-item { flex: 1; text-align: center; padding: 10px; font-weight: bold; color: #7f8c8d; }
+        .tab-item.active { color: #3498db; border-bottom: 3px solid #3498db; }
+        .content { display: none; }
+        .content.active { display: block; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #34495e; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #2980b9; }
+        .result { margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: 6px; text-align: center; font-weight: bold; color: #2980b9; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>배전 설계 계산기</h2>
+    
+    <div class="tab-menu">
+        <div class="tab-item active" onclick="openTab(event, 'tab1')">전압강하</div>
+        <div class="tab-item" onclick="openTab(event, 'tab2')">역률개선</div>
+    </div>
+
+    <div id="tab1" class="content active">
+        <div class="input-group">
+            <label>배전 방식</label>
+            <select id="wireType">
+                <option value="17.8">단상 2선식 / 3상 4선식</option>
+                <option value="30.8">3상 3선식</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>전선 길이 (L, m)</label>
+            <input type="number" id="length" placeholder="예: 100">
+        </div>
+        <div class="input-group">
+            <label>부하 전류 (I, A)</label>
+            <input type="number" id="current" placeholder="예: 50">
+        </div>
+        <div class="input-group">
+            <label>전선 단면적 (A, mm²)</label>
+            <input type="number" id="area" placeholder="예: 35">
+        </div>
+        <button onclick="calcVoltageDrop()">계산하기</button>
+        <div id="res1" class="result">결과가 여기에 표시됩니다.</div>
+    </div>
+
+    <div id="tab2" class="content">
+        <div class="input-group">
+            <label>부하 전력 (P, kW)</label>
+            <input type="number" id="power" placeholder="예: 100">
+        </div>
+        <div class="input-group">
+            <label>현재 역률 (cosθ1, %)</label>
+            <input type="number" id="pf1" value="80">
+        </div>
+        <div class="input-group">
+            <label>목표 역률 (cosθ2, %)</label>
+            <input type="number" id="pf2" value="95">
+        </div>
+        <button onclick="calcCapacitor()">콘덴서 용량 계산</button>
+        <div id="res2" class="result">결과가 여기에 표시됩니다.</div>
+    </div>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, content, tabItem;
+        content = document.getElementsByClassName("content");
+        for (i = 0; i < content.length; i++) content[i].className = "content";
+        tabItem = document.getElementsByClassName("tab-item");
+        for (i = 0; i < tabItem.length; i++) tabItem[i].className = "tab-item";
+        document.getElementById(tabName).className = "content active";
+        evt.currentTarget.className += " active";
+    }
+
+    function calcVoltageDrop() {
+        const k = parseFloat(document.getElementById('wireType').value);
+        const L = parseFloat(document.getElementById('length').value);
+        const I = parseFloat(document.getElementById('current').value);
+        const A = parseFloat(document.getElementById('area').value);
+
+        if (L && I && A) {
+            const vd = (k * L * I) / (1000 * A);
+            document.getElementById('res1').innerText = `예상 전압강하: ${vd.toFixed(3)} V`;
+        } else {
+            alert("모든 값을 입력해주세요.");
+        }
+    }
+
+    function calcCapacitor() {
+        const P = parseFloat(document.getElementById('power').value);
+        const cos1 = parseFloat(document.getElementById('pf1').value) / 100;
+        const cos2 = parseFloat(document.getElementById('pf2').value) / 100;
+
+        if (P && cos1 && cos2) {
+            const tan1 = Math.sqrt(1 - Math.pow(cos1, 2)) / cos1;
+            const tan2 = Math.sqrt(1 - Math.pow(cos2, 2)) / cos2;
+            const Q = P * (tan1 - tan2);
+            document.getElementById('res2').innerText = `필요 콘덴서 용량: ${Q.toFixed(2)} kVA`;
+        } else {
+            alert("모든 값을 입력해주세요.");
+        }
+    }
+</script>
+
+</body>
+</html>

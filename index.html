@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 웹 코드 에디터</title>
+    <style>
+        /* 화면 전체를 사용하도록 기본 여백 제거 */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        
+        /* 상단 헤더(메뉴바) 스타일 지정 */
+        #header { 
+            background-color: #252526; /* VS Code 기본 상단바 색상 */
+            color: #cccccc; 
+            padding: 10px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #333;
+        }
+
+        /* 에디터가 렌더링될 공간 (헤더 높이를 제외한 나머지 화면 전체) */
+        #editor-container { 
+            width: 100%; 
+            height: calc(100% - 41px); 
+        }
+
+        /* 버튼 스타일 */
+        button { 
+            background-color: #007acc; 
+            color: white; 
+            border: none; 
+            padding: 6px 16px; 
+            cursor: pointer; 
+            border-radius: 3px; 
+            font-weight: bold;
+        }
+        button:hover { 
+            background-color: #005f9e; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <span>🚀 코딩 파트너 웹 에디터</span>
+        <button onclick="getCode()">코드 가져오기</button>
+    </div>
+
+    <div id="editor-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.js"></script>
+    
+    <script>
+        // 2. Monaco Editor 파일들의 경로를 설정합니다.
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+
+        let editor; // 에디터 인스턴스를 저장할 변수
+
+        // 3. 메인 에디터 모듈을 불러옵니다.
+        require(['vs/editor/editor.main'], function () {
+            
+            // 4. 컨테이너 요소에 에디터를 생성하고 옵션을 부여합니다.
+            editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: [
+                    '// 여기에 코드를 작성해보세요!',
+                    'function helloWorld() {',
+                    '\tconsole.log("안녕하세요! 코딩 파트너와 함께 만든 에디터입니다.");',
+                    '}',
+                    '',
+                    'helloWorld();'
+                ].join('\n'),
+                language: 'javascript', // 기본 언어 설정
+                theme: 'vs-dark',       // 어두운 테마 설정 ('vs'는 밝은 테마)
+                automaticLayout: true,  // 브라우저 창 크기가 변할 때 에디터 크기도 자동 조절
+                minimap: { enabled: true }, // 우측 미니맵 활성화 여부
+                fontSize: 16            // 코드 폰트 크기
+            });
+        });
+
+        // 5. 버튼 클릭 시 에디터에 적힌 코드를 가져오는 함수
+        function getCode() {
+            if (editor) {
+                const currentCode = editor.getValue(); // 에디터의 텍스트를 추출
+                console.log("현재 작성된 코드:\n", currentCode);
+                alert("작성된 코드를 브라우저 개발자 도구(F12) 콘솔에 출력했습니다!");
+            }
+        }
+    </script>
+</body>
+</html>

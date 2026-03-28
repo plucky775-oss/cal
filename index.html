@@ -3,121 +3,239 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Engineer Calc Pro</title>
+  <title>Quantum Super Calculator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="bg-grid"></div>
-  <main class="app-shell">
-    <section class="calculator-card">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">ENGINEER MODE</p>
-          <h1>Engineer Calc Pro</h1>
-        </div>
-        <div class="toggles">
-          <button id="angleToggle" class="pill active">DEG</button>
-          <button id="invToggle" class="pill">INV</button>
-        </div>
-      </header>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
 
-      <section class="display-wrap">
-        <div class="status-row">
-          <span id="memoryLamp" class="status-chip off">M</span>
-          <span id="modeLabel" class="status-chip">각도: DEG</span>
-          <span id="historyHint" class="status-chip ghost">최근 계산 자동 저장</span>
+  <main class="app-shell">
+    <header class="hero-card glass">
+      <div>
+        <p class="eyebrow">QUANTUM · GRAPH · CALCULUS</p>
+        <h1>Super Engineering Calculator</h1>
+        <p class="hero-copy">계산기 수준을 넘어서 함수 그래프, 수치 미분, 정적분, 접선, 근 탐색까지 한 화면에서 처리합니다.</p>
+      </div>
+      <div class="hero-chips">
+        <span class="chip">그래프</span>
+        <span class="chip">미분</span>
+        <span class="chip">정적분</span>
+        <span class="chip">근 탐색</span>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <section class="left-stack">
+        <div class="glass calc-panel">
+          <div class="panel-top">
+            <div>
+              <div class="eyebrow small">ENGINE</div>
+              <h2>메인 계산기</h2>
+            </div>
+            <div class="mode-row">
+              <button id="angleToggle" class="pill active">DEG</button>
+              <button id="invToggle" class="pill">INV</button>
+              <button id="copyDisplay" class="pill ghost">복사</button>
+            </div>
+          </div>
+
+          <div class="display-wrap">
+            <div class="status-row">
+              <span id="memoryLamp" class="status-chip off">M</span>
+              <span id="modeLabel" class="status-chip">각도: DEG</span>
+              <span class="status-chip">x 변수 사용 가능</span>
+            </div>
+            <div id="expression" class="expression"></div>
+            <div id="display" class="display">0</div>
+          </div>
+
+          <div class="formula-helper">
+            <button class="helper-btn" data-fill="sin(x)">sin(x)</button>
+            <button class="helper-btn" data-fill="cos(x)">cos(x)</button>
+            <button class="helper-btn" data-fill="x^2+2*x+1">2차식</button>
+            <button class="helper-btn" data-fill="exp(-x/3)*sin(2*x)">감쇠진동</button>
+            <button class="helper-btn" data-fill="log(x)">log(x)</button>
+            <button class="helper-btn" data-fill="sqrt(x)">sqrt(x)</button>
+          </div>
+
+          <div class="keypad-wrap">
+            <div class="function-grid">
+              <button data-action="second" class="btn soft">2nd</button>
+              <button data-action="clear-entry" class="btn soft">CE</button>
+              <button data-action="clear" class="btn soft warn">AC</button>
+              <button data-action="backspace" class="btn soft">⌫</button>
+              <button data-value="(" class="btn soft">(</button>
+              <button data-value=")" class="btn soft">)</button>
+
+              <button data-fn="sin" class="btn fn">sin</button>
+              <button data-fn="cos" class="btn fn">cos</button>
+              <button data-fn="tan" class="btn fn">tan</button>
+              <button data-fn="log" class="btn fn">log</button>
+              <button data-fn="ln" class="btn fn">ln</button>
+              <button data-fn="sqrt" class="btn fn">√</button>
+
+              <button data-fn="asin" class="btn fn inv hidden">sin⁻¹</button>
+              <button data-fn="acos" class="btn fn inv hidden">cos⁻¹</button>
+              <button data-fn="atan" class="btn fn inv hidden">tan⁻¹</button>
+              <button data-fn="pow10" class="btn fn inv hidden">10ˣ</button>
+              <button data-fn="exp" class="btn fn inv hidden">eˣ</button>
+              <button data-fn="cbrt" class="btn fn inv hidden">∛</button>
+
+              <button data-fn="pow2" class="btn fn">x²</button>
+              <button data-fn="pow3" class="btn fn">x³</button>
+              <button data-value="^" class="btn fn">xʸ</button>
+              <button data-fn="factorial" class="btn fn">x!</button>
+              <button data-value="pi" class="btn fn">π</button>
+              <button data-value="e" class="btn fn">e</button>
+
+              <button data-action="mc" class="btn soft">MC</button>
+              <button data-action="mr" class="btn soft">MR</button>
+              <button data-action="mplus" class="btn soft">M+</button>
+              <button data-action="mminus" class="btn soft">M−</button>
+              <button data-action="ans" class="btn soft">ANS</button>
+              <button data-value="x" class="btn soft">x</button>
+            </div>
+
+            <div class="main-grid">
+              <button data-value="7" class="btn">7</button>
+              <button data-value="8" class="btn">8</button>
+              <button data-value="9" class="btn">9</button>
+              <button data-value="/" class="btn op">÷</button>
+
+              <button data-value="4" class="btn">4</button>
+              <button data-value="5" class="btn">5</button>
+              <button data-value="6" class="btn">6</button>
+              <button data-value="*" class="btn op">×</button>
+
+              <button data-value="1" class="btn">1</button>
+              <button data-value="2" class="btn">2</button>
+              <button data-value="3" class="btn">3</button>
+              <button data-value="-" class="btn op">−</button>
+
+              <button data-action="toggle-sign" class="btn">±</button>
+              <button data-value="0" class="btn">0</button>
+              <button data-value="." class="btn">.</button>
+              <button data-value="+" class="btn op">+</button>
+
+              <button data-fn="engineer" class="btn accent wide-left">ENG</button>
+              <button data-fn="scientific" class="btn accent">SCI</button>
+              <button data-action="equals" class="btn primary wide-right">=</button>
+            </div>
+          </div>
         </div>
-        <div id="expression" class="expression"></div>
-        <div id="display" class="display">0</div>
+
+        <div class="glass history-card">
+          <div class="card-header">
+            <h2>최근 계산</h2>
+            <button id="clearHistory" class="mini-link">지우기</button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
       </section>
 
-      <section class="keypad-wrap">
-        <div class="function-grid">
-          <button data-action="second" class="btn soft">2nd</button>
-          <button data-action="clear-entry" class="btn soft">CE</button>
-          <button data-action="clear" class="btn soft warn">AC</button>
-          <button data-action="backspace" class="btn soft">⌫</button>
-          <button data-value="(" class="btn soft">(</button>
-          <button data-value=")" class="btn soft">)</button>
+      <section class="right-stack">
+        <div class="glass tabs-card">
+          <div class="tab-row">
+            <button class="tab-btn active" data-tab="graph">그래프</button>
+            <button class="tab-btn" data-tab="calculus">미적분</button>
+            <button class="tab-btn" data-tab="lab">분석</button>
+          </div>
 
-          <button data-fn="sin" class="btn fn">sin</button>
-          <button data-fn="cos" class="btn fn">cos</button>
-          <button data-fn="tan" class="btn fn">tan</button>
-          <button data-fn="log" class="btn fn">log</button>
-          <button data-fn="ln" class="btn fn">ln</button>
-          <button data-fn="sqrt" class="btn fn">√</button>
+          <div class="tab-panel active" data-panel="graph">
+            <div class="form-grid">
+              <label>
+                함수 f(x)
+                <input id="graphExpr" type="text" value="sin(x)" />
+              </label>
+              <label>
+                x 최소
+                <input id="xMin" type="number" value="-10" step="0.5" />
+              </label>
+              <label>
+                x 최대
+                <input id="xMax" type="number" value="10" step="0.5" />
+              </label>
+              <label>
+                샘플 수
+                <input id="samples" type="number" value="800" min="200" max="3000" step="100" />
+              </label>
+            </div>
+            <div class="action-row">
+              <button id="plotBtn" class="action-btn">그래프 그리기</button>
+              <button id="plotDerivativeBtn" class="action-btn ghost-btn">도함수 겹치기</button>
+              <button id="useMainExprBtn" class="action-btn ghost-btn">메인 식 가져오기</button>
+            </div>
+            <div class="canvas-wrap">
+              <canvas id="graphCanvas" width="980" height="480"></canvas>
+            </div>
+            <div id="graphMeta" class="insight-grid"></div>
+          </div>
 
-          <button data-fn="asin" class="btn fn inv hidden">sin⁻¹</button>
-          <button data-fn="acos" class="btn fn inv hidden">cos⁻¹</button>
-          <button data-fn="atan" class="btn fn inv hidden">tan⁻¹</button>
-          <button data-fn="pow10" class="btn fn inv hidden">10ˣ</button>
-          <button data-fn="exp" class="btn fn inv hidden">eˣ</button>
-          <button data-fn="cbrt" class="btn fn inv hidden">∛</button>
+          <div class="tab-panel" data-panel="calculus">
+            <div class="form-grid two-col">
+              <label>
+                대상 함수 f(x)
+                <input id="calcExpr" type="text" value="x^3 - 3*x + 1" />
+              </label>
+              <label>
+                미분 기준점 x₀
+                <input id="pointX" type="number" value="1" step="0.1" />
+              </label>
+              <label>
+                적분 시작 a
+                <input id="intA" type="number" value="0" step="0.1" />
+              </label>
+              <label>
+                적분 끝 b
+                <input id="intB" type="number" value="3" step="0.1" />
+              </label>
+            </div>
+            <div class="action-row">
+              <button id="analyzeBtn" class="action-btn">미적분 분석</button>
+              <button id="syncCalcBtn" class="action-btn ghost-btn">그래프 함수 가져오기</button>
+            </div>
+            <div class="metric-grid">
+              <div class="metric-box">
+                <span class="metric-label">f(x₀)</span>
+                <strong id="fxValue">-</strong>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">f'(x₀)</span>
+                <strong id="derivativeValue">-</strong>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">∫ab f(x)dx</span>
+                <strong id="integralValue">-</strong>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">접선식</span>
+                <strong id="tangentValue">-</strong>
+              </div>
+            </div>
+            <div class="canvas-wrap small">
+              <canvas id="analysisCanvas" width="980" height="360"></canvas>
+            </div>
+          </div>
 
-          <button data-fn="pow2" class="btn fn">x²</button>
-          <button data-fn="pow3" class="btn fn">x³</button>
-          <button data-value="^" class="btn fn">xʸ</button>
-          <button data-fn="factorial" class="btn fn">x!</button>
-          <button data-value="pi" class="btn fn">π</button>
-          <button data-value="e" class="btn fn">e</button>
-
-          <button data-action="mc" class="btn soft">MC</button>
-          <button data-action="mr" class="btn soft">MR</button>
-          <button data-action="mplus" class="btn soft">M+</button>
-          <button data-action="mminus" class="btn soft">M−</button>
-          <button data-action="ans" class="btn soft">ANS</button>
-          <button data-value="%" class="btn soft">%</button>
-        </div>
-
-        <div class="main-grid">
-          <button data-value="7" class="btn">7</button>
-          <button data-value="8" class="btn">8</button>
-          <button data-value="9" class="btn">9</button>
-          <button data-value="/" class="btn op">÷</button>
-
-          <button data-value="4" class="btn">4</button>
-          <button data-value="5" class="btn">5</button>
-          <button data-value="6" class="btn">6</button>
-          <button data-value="*" class="btn op">×</button>
-
-          <button data-value="1" class="btn">1</button>
-          <button data-value="2" class="btn">2</button>
-          <button data-value="3" class="btn">3</button>
-          <button data-value="-" class="btn op">−</button>
-
-          <button data-action="toggle-sign" class="btn">±</button>
-          <button data-value="0" class="btn">0</button>
-          <button data-value="." class="btn">.</button>
-          <button data-value="+" class="btn op">+</button>
-
-          <button data-fn="engineer" class="btn accent wide-left">ENG</button>
-          <button data-fn="scientific" class="btn accent">SCI</button>
-          <button data-action="equals" class="btn primary wide-right">=</button>
+          <div class="tab-panel" data-panel="lab">
+            <div class="action-row stacked-mobile">
+              <button id="findRootsBtn" class="action-btn">실근 찾기</button>
+              <button id="criticalBtn" class="action-btn ghost-btn">극값 후보 찾기</button>
+              <button id="inflectionBtn" class="action-btn ghost-btn">변곡 후보 찾기</button>
+            </div>
+            <div id="analysisCards" class="lab-grid"></div>
+            <div class="note-box">
+              수치해석 기반이라 복잡한 함수에서는 근사값이 나옵니다. 그래도 실전 계산용으로 빠르게 감을 잡기 좋습니다.
+            </div>
+          </div>
         </div>
       </section>
     </section>
-
-    <aside class="side-panel">
-      <section class="info-card">
-        <h2>빠른 기능</h2>
-        <ul>
-          <li>DEG/RAD 전환</li>
-          <li>공학 표기 자동 변환</li>
-          <li>최근 계산 기록</li>
-          <li>메모리 저장 기능</li>
-        </ul>
-      </section>
-      <section class="info-card history-card">
-        <div class="history-header">
-          <h2>최근 계산</h2>
-          <button id="clearHistory" class="mini-link">지우기</button>
-        </div>
-        <div id="historyList" class="history-list"></div>
-      </section>
-    </aside>
   </main>
 
   <script src="app.js"></script>

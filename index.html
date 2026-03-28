@@ -1,68 +1,429 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#071428" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Neo Calculator</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    :root {
+      --bg1: #050816;
+      --bg2: #0a1030;
+      --panel: rgba(12, 19, 48, 0.78);
+      --panel-2: rgba(20, 31, 74, 0.86);
+      --line: rgba(117, 177, 255, 0.22);
+      --text: #eef7ff;
+      --muted: #8ca7cf;
+      --accent: #60e8ff;
+      --accent-2: #7c8fff;
+      --danger: #ff7ca8;
+      --shadow: 0 24px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+      --glow: 0 0 25px rgba(96, 232, 255, .22), 0 0 50px rgba(124, 143, 255, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, Pretendard, "Noto Sans KR", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(96,232,255,.16), transparent 24%),
+        radial-gradient(circle at 85% 18%, rgba(124,143,255,.16), transparent 24%),
+        radial-gradient(circle at 50% 85%, rgba(117, 177, 255, .10), transparent 26%),
+        linear-gradient(145deg, var(--bg1), var(--bg2));
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      opacity: .65;
+    }
+    body::before {
+      width: 220px; height: 220px; left: -60px; top: 10vh;
+      background: rgba(96,232,255,.12);
+    }
+    body::after {
+      width: 250px; height: 250px; right: -60px; bottom: 8vh;
+      background: rgba(124,143,255,.12);
+    }
+
+    .shell {
+      width: min(420px, calc(100vw - 24px));
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      backdrop-filter: blur(24px);
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: var(--shadow), var(--glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, transparent 0 28%, rgba(255,255,255,.06) 38%, transparent 48%),
+        linear-gradient(transparent, transparent);
+      pointer-events: none;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand .tag {
+      font-size: 11px;
+      letter-spacing: .22em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .brand .name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(96,232,255,.18);
+      background: rgba(96,232,255,.06);
+      box-shadow: inset 0 0 16px rgba(96,232,255,.08);
+    }
+
+    .display {
+      background: linear-gradient(180deg, rgba(11,18,45,.95), rgba(7,11,27,.92));
+      border: 1px solid rgba(96,232,255,.16);
+      border-radius: 22px;
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+      min-height: 150px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02), inset 0 0 32px rgba(96,232,255,.05);
+    }
+
+    .history {
+      min-height: 22px;
+      text-align: right;
+      font-size: 14px;
+      color: var(--muted);
+      opacity: .95;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .current {
+      min-height: 72px;
+      text-align: right;
+      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      font-weight: 700;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      letter-spacing: -.03em;
+      text-shadow: 0 0 18px rgba(96,232,255,.12);
+      word-break: break-all;
+      margin-top: 6px;
+    }
+
+    .subrow {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(117,177,255,.14);
+      background: linear-gradient(180deg, rgba(18,26,61,.92), rgba(10,16,38,.92));
+      color: var(--text);
+      height: 68px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 10px 20px rgba(0,0,0,.24);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 35%);
+      pointer-events: none;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(96,232,255,.06);
+      border-color: rgba(96,232,255,.26);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(.99);
+    }
+
+    .num { background: linear-gradient(180deg, rgba(18,26,61,.92), rgba(10,16,38,.92)); }
+    .op {
+      background: linear-gradient(180deg, rgba(27,40,90,.95), rgba(14,22,53,.96));
+      color: #dff9ff;
+    }
+    .accent {
+      background: linear-gradient(180deg, rgba(80,231,255,.22), rgba(29,56,126,.96));
+      border-color: rgba(96,232,255,.32);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 22px rgba(0,0,0,.3), 0 0 18px rgba(96,232,255,.12);
+    }
+    .danger {
+      background: linear-gradient(180deg, rgba(255,124,168,.18), rgba(74,18,45,.95));
+      border-color: rgba(255,124,168,.22);
+      color: #ffe7ef;
+    }
+    .zero { grid-column: span 2; }
+
+    .footer {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+
+    @media (max-width: 430px) {
+      .shell { padding: 14px; border-radius: 24px; }
+      button { height: 60px; border-radius: 18px; }
+      .display { min-height: 136px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="scene">
-    <div class="ambient ambient-left"></div>
-    <div class="ambient ambient-right"></div>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="tag">Future Interface</div>
+        <div class="name">Neo Calculator</div>
+      </div>
+      <div class="status">ONLINE</div>
+    </div>
 
-    <main class="shell" aria-label="계산기">
-      <header class="topbar">
-        <div class="brand-wrap">
-          <div class="eyebrow">FUTURE INTERFACE</div>
-          <h1 class="brand">Neo Calculator</h1>
-        </div>
-        <div class="status-pill" aria-label="상태">ONLINE</div>
-      </header>
+    <div class="display">
+      <div class="history" id="history"></div>
+      <div class="current" id="display">0</div>
+      <div class="subrow">
+        <span id="mode">STANDARD MODE</span>
+        <span id="hint">C로 초기화</span>
+      </div>
+    </div>
 
-      <section class="display-panel" aria-live="polite">
-        <div class="display-top" id="expression">0</div>
-        <div class="display-main" id="display">0</div>
-        <div class="display-bottom">
-          <span id="modeLabel">STANDARD MODE</span>
-          <span id="hintLabel">C로 초기화</span>
-        </div>
-      </section>
+    <div class="keys">
+      <button class="danger" data-action="clear">C</button>
+      <button class="op" data-action="sign">±</button>
+      <button class="op" data-action="percent">%</button>
+      <button class="accent" data-value="/">÷</button>
 
-      <section class="keypad" aria-label="키패드">
-        <button class="key key-danger" data-action="clear">C</button>
-        <button class="key" data-action="sign">±</button>
-        <button class="key" data-action="percent">%</button>
-        <button class="key key-operator" data-value="÷">÷</button>
+      <button class="num" data-value="7">7</button>
+      <button class="num" data-value="8">8</button>
+      <button class="num" data-value="9">9</button>
+      <button class="accent" data-value="*">×</button>
 
-        <button class="key" data-value="7">7</button>
-        <button class="key" data-value="8">8</button>
-        <button class="key" data-value="9">9</button>
-        <button class="key key-operator" data-value="×">×</button>
+      <button class="num" data-value="4">4</button>
+      <button class="num" data-value="5">5</button>
+      <button class="num" data-value="6">6</button>
+      <button class="accent" data-value="-">−</button>
 
-        <button class="key" data-value="4">4</button>
-        <button class="key" data-value="5">5</button>
-        <button class="key" data-value="6">6</button>
-        <button class="key key-operator" data-value="-">−</button>
+      <button class="num" data-value="1">1</button>
+      <button class="num" data-value="2">2</button>
+      <button class="num" data-value="3">3</button>
+      <button class="accent" data-value="+">＋</button>
 
-        <button class="key" data-value="1">1</button>
-        <button class="key" data-value="2">2</button>
-        <button class="key" data-value="3">3</button>
-        <button class="key key-operator" data-value="+">+</button>
+      <button class="num zero" data-value="0">0</button>
+      <button class="num" data-value=".">.</button>
+      <button class="accent" data-action="equals">＝</button>
+    </div>
 
-        <button class="key key-zero" data-value="0">0</button>
-        <button class="key" data-value=".">.</button>
-        <button class="key key-operator key-equals" data-action="equals">=</button>
-      </section>
-
-      <footer class="footerline">
-        <span>Glass Neon Theme</span>
-        <span>Keyboard Ready</span>
-      </footer>
-    </main>
+    <div class="footer">
+      <span>Glass Neon Theme</span>
+      <span>Keyboard Ready</span>
+    </div>
   </div>
 
-  <script src="./app.js"></script>
+  <script>
+    const display = document.getElementById('display');
+    const historyEl = document.getElementById('history');
+
+    let current = '0';
+    let previous = null;
+    let operator = null;
+    let waitingForOperand = false;
+
+    function formatNumber(value) {
+      if (!isFinite(value)) return 'Error';
+      const abs = Math.abs(value);
+      if ((abs >= 1e12 || (abs > 0 && abs < 1e-9))) return value.toExponential(6);
+      const text = String(value);
+      if (text.includes('e')) return value.toExponential(6);
+      const [intPart, decPart] = text.split('.');
+      const formattedInt = Number(intPart).toLocaleString('en-US');
+      return decPart ? `${formattedInt}.${decPart.slice(0,10)}` : formattedInt;
+    }
+
+    function updateDisplay() {
+      display.textContent = current;
+      historyEl.textContent = previous !== null && operator ? `${formatNumber(previous)} ${symbol(operator)}` : '';
+    }
+
+    function symbol(op) {
+      return ({ '/':'÷', '*':'×', '-':'−', '+':'+' })[op] || op;
+    }
+
+    function inputDigit(digit) {
+      if (waitingForOperand) {
+        current = digit;
+        waitingForOperand = false;
+      } else {
+        current = current === '0' ? digit : current + digit;
+      }
+      updateDisplay();
+    }
+
+    function inputDecimal() {
+      if (waitingForOperand) {
+        current = '0.';
+        waitingForOperand = false;
+      } else if (!current.includes('.')) {
+        current += '.';
+      }
+      updateDisplay();
+    }
+
+    function clearAll() {
+      current = '0';
+      previous = null;
+      operator = null;
+      waitingForOperand = false;
+      historyEl.textContent = '';
+      updateDisplay();
+    }
+
+    function toggleSign() {
+      if (current === '0') return;
+      current = current.startsWith('-') ? current.slice(1) : '-' + current;
+      updateDisplay();
+    }
+
+    function percent() {
+      const value = parseFloat(current);
+      if (Number.isNaN(value)) return;
+      current = String(value / 100);
+      updateDisplay();
+    }
+
+    function calculate(first, second, op) {
+      switch (op) {
+        case '+': return first + second;
+        case '-': return first - second;
+        case '*': return first * second;
+        case '/': return second === 0 ? NaN : first / second;
+        default: return second;
+      }
+    }
+
+    function performOperator(nextOperator) {
+      const inputValue = parseFloat(current);
+      if (previous === null) {
+        previous = inputValue;
+      } else if (operator && !waitingForOperand) {
+        const result = calculate(previous, inputValue, operator);
+        current = Number.isNaN(result) ? 'Error' : formatNumber(result);
+        previous = Number.isNaN(result) ? null : result;
+      }
+
+      waitingForOperand = true;
+      operator = nextOperator;
+      updateDisplay();
+    }
+
+    function handleEquals() {
+      if (operator === null || waitingForOperand) return;
+      const inputValue = parseFloat(current);
+      const result = calculate(previous, inputValue, operator);
+      historyEl.textContent = `${formatNumber(previous)} ${symbol(operator)} ${formatNumber(inputValue)} =`;
+      current = Number.isNaN(result) ? 'Error' : formatNumber(result);
+      previous = null;
+      operator = null;
+      waitingForOperand = true;
+      updateDisplay();
+    }
+
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        const action = btn.dataset.action;
+
+        if (value !== undefined) {
+          if (['+', '-', '*', '/'].includes(value)) performOperator(value);
+          else if (value === '.') inputDecimal();
+          else inputDigit(value);
+          return;
+        }
+
+        if (action === 'clear') clearAll();
+        if (action === 'sign') toggleSign();
+        if (action === 'percent') percent();
+        if (action === 'equals') handleEquals();
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const key = e.key;
+      if (/^[0-9]$/.test(key)) inputDigit(key);
+      else if (key === '.') inputDecimal();
+      else if (['+', '-', '*', '/'].includes(key)) performOperator(key);
+      else if (key === 'Enter' || key === '=') handleEquals();
+      else if (key === 'Backspace') {
+        if (!waitingForOperand && current.length > 1) current = current.slice(0, -1);
+        else if (!waitingForOperand) current = '0';
+        updateDisplay();
+      }
+      else if (key.toLowerCase() === 'c' || key === 'Escape') clearAll();
+      else if (key === '%') percent();
+    });
+
+    updateDisplay();
+  </script>
 </body>
 </html>

@@ -1,243 +1,429 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quantum Super Calculator</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <title>Neo Calculator</title>
+  <style>
+    :root {
+      --bg1: #050816;
+      --bg2: #0a1030;
+      --panel: rgba(12, 19, 48, 0.78);
+      --panel-2: rgba(20, 31, 74, 0.86);
+      --line: rgba(117, 177, 255, 0.22);
+      --text: #eef7ff;
+      --muted: #8ca7cf;
+      --accent: #60e8ff;
+      --accent-2: #7c8fff;
+      --danger: #ff7ca8;
+      --shadow: 0 24px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+      --glow: 0 0 25px rgba(96, 232, 255, .22), 0 0 50px rgba(124, 143, 255, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, Pretendard, "Noto Sans KR", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(96,232,255,.16), transparent 24%),
+        radial-gradient(circle at 85% 18%, rgba(124,143,255,.16), transparent 24%),
+        radial-gradient(circle at 50% 85%, rgba(117, 177, 255, .10), transparent 26%),
+        linear-gradient(145deg, var(--bg1), var(--bg2));
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      opacity: .65;
+    }
+    body::before {
+      width: 220px; height: 220px; left: -60px; top: 10vh;
+      background: rgba(96,232,255,.12);
+    }
+    body::after {
+      width: 250px; height: 250px; right: -60px; bottom: 8vh;
+      background: rgba(124,143,255,.12);
+    }
+
+    .shell {
+      width: min(420px, calc(100vw - 24px));
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      backdrop-filter: blur(24px);
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: var(--shadow), var(--glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, transparent 0 28%, rgba(255,255,255,.06) 38%, transparent 48%),
+        linear-gradient(transparent, transparent);
+      pointer-events: none;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand .tag {
+      font-size: 11px;
+      letter-spacing: .22em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .brand .name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(96,232,255,.18);
+      background: rgba(96,232,255,.06);
+      box-shadow: inset 0 0 16px rgba(96,232,255,.08);
+    }
+
+    .display {
+      background: linear-gradient(180deg, rgba(11,18,45,.95), rgba(7,11,27,.92));
+      border: 1px solid rgba(96,232,255,.16);
+      border-radius: 22px;
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+      min-height: 150px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02), inset 0 0 32px rgba(96,232,255,.05);
+    }
+
+    .history {
+      min-height: 22px;
+      text-align: right;
+      font-size: 14px;
+      color: var(--muted);
+      opacity: .95;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .current {
+      min-height: 72px;
+      text-align: right;
+      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      font-weight: 700;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      letter-spacing: -.03em;
+      text-shadow: 0 0 18px rgba(96,232,255,.12);
+      word-break: break-all;
+      margin-top: 6px;
+    }
+
+    .subrow {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(117,177,255,.14);
+      background: linear-gradient(180deg, rgba(18,26,61,.92), rgba(10,16,38,.92));
+      color: var(--text);
+      height: 68px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 10px 20px rgba(0,0,0,.24);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 35%);
+      pointer-events: none;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(96,232,255,.06);
+      border-color: rgba(96,232,255,.26);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(.99);
+    }
+
+    .num { background: linear-gradient(180deg, rgba(18,26,61,.92), rgba(10,16,38,.92)); }
+    .op {
+      background: linear-gradient(180deg, rgba(27,40,90,.95), rgba(14,22,53,.96));
+      color: #dff9ff;
+    }
+    .accent {
+      background: linear-gradient(180deg, rgba(80,231,255,.22), rgba(29,56,126,.96));
+      border-color: rgba(96,232,255,.32);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 22px rgba(0,0,0,.3), 0 0 18px rgba(96,232,255,.12);
+    }
+    .danger {
+      background: linear-gradient(180deg, rgba(255,124,168,.18), rgba(74,18,45,.95));
+      border-color: rgba(255,124,168,.22);
+      color: #ffe7ef;
+    }
+    .zero { grid-column: span 2; }
+
+    .footer {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+
+    @media (max-width: 430px) {
+      .shell { padding: 14px; border-radius: 24px; }
+      button { height: 60px; border-radius: 18px; }
+      .display { min-height: 136px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="bg-grid"></div>
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-
-  <main class="app-shell">
-    <header class="hero-card glass">
-      <div>
-        <p class="eyebrow">QUANTUM · GRAPH · CALCULUS</p>
-        <h1>Super Engineering Calculator</h1>
-        <p class="hero-copy">계산기 수준을 넘어서 함수 그래프, 수치 미분, 정적분, 접선, 근 탐색까지 한 화면에서 처리합니다.</p>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="tag">Future Interface</div>
+        <div class="name">Neo Calculator</div>
       </div>
-      <div class="hero-chips">
-        <span class="chip">그래프</span>
-        <span class="chip">미분</span>
-        <span class="chip">정적분</span>
-        <span class="chip">근 탐색</span>
+      <div class="status">ONLINE</div>
+    </div>
+
+    <div class="display">
+      <div class="history" id="history"></div>
+      <div class="current" id="display">0</div>
+      <div class="subrow">
+        <span id="mode">STANDARD MODE</span>
+        <span id="hint">C로 초기화</span>
       </div>
-    </header>
+    </div>
 
-    <section class="workspace">
-      <section class="left-stack">
-        <div class="glass calc-panel">
-          <div class="panel-top">
-            <div>
-              <div class="eyebrow small">ENGINE</div>
-              <h2>메인 계산기</h2>
-            </div>
-            <div class="mode-row">
-              <button id="angleToggle" class="pill active">DEG</button>
-              <button id="invToggle" class="pill">INV</button>
-              <button id="copyDisplay" class="pill ghost">복사</button>
-            </div>
-          </div>
+    <div class="keys">
+      <button class="danger" data-action="clear">C</button>
+      <button class="op" data-action="sign">±</button>
+      <button class="op" data-action="percent">%</button>
+      <button class="accent" data-value="/">÷</button>
 
-          <div class="display-wrap">
-            <div class="status-row">
-              <span id="memoryLamp" class="status-chip off">M</span>
-              <span id="modeLabel" class="status-chip">각도: DEG</span>
-              <span class="status-chip">x 변수 사용 가능</span>
-            </div>
-            <div id="expression" class="expression"></div>
-            <div id="display" class="display">0</div>
-          </div>
+      <button class="num" data-value="7">7</button>
+      <button class="num" data-value="8">8</button>
+      <button class="num" data-value="9">9</button>
+      <button class="accent" data-value="*">×</button>
 
-          <div class="formula-helper">
-            <button class="helper-btn" data-fill="sin(x)">sin(x)</button>
-            <button class="helper-btn" data-fill="cos(x)">cos(x)</button>
-            <button class="helper-btn" data-fill="x^2+2*x+1">2차식</button>
-            <button class="helper-btn" data-fill="exp(-x/3)*sin(2*x)">감쇠진동</button>
-            <button class="helper-btn" data-fill="log(x)">log(x)</button>
-            <button class="helper-btn" data-fill="sqrt(x)">sqrt(x)</button>
-          </div>
+      <button class="num" data-value="4">4</button>
+      <button class="num" data-value="5">5</button>
+      <button class="num" data-value="6">6</button>
+      <button class="accent" data-value="-">−</button>
 
-          <div class="keypad-wrap">
-            <div class="function-grid">
-              <button data-action="second" class="btn soft">2nd</button>
-              <button data-action="clear-entry" class="btn soft">CE</button>
-              <button data-action="clear" class="btn soft warn">AC</button>
-              <button data-action="backspace" class="btn soft">⌫</button>
-              <button data-value="(" class="btn soft">(</button>
-              <button data-value=")" class="btn soft">)</button>
+      <button class="num" data-value="1">1</button>
+      <button class="num" data-value="2">2</button>
+      <button class="num" data-value="3">3</button>
+      <button class="accent" data-value="+">＋</button>
 
-              <button data-fn="sin" class="btn fn">sin</button>
-              <button data-fn="cos" class="btn fn">cos</button>
-              <button data-fn="tan" class="btn fn">tan</button>
-              <button data-fn="log" class="btn fn">log</button>
-              <button data-fn="ln" class="btn fn">ln</button>
-              <button data-fn="sqrt" class="btn fn">√</button>
+      <button class="num zero" data-value="0">0</button>
+      <button class="num" data-value=".">.</button>
+      <button class="accent" data-action="equals">＝</button>
+    </div>
 
-              <button data-fn="asin" class="btn fn inv hidden">sin⁻¹</button>
-              <button data-fn="acos" class="btn fn inv hidden">cos⁻¹</button>
-              <button data-fn="atan" class="btn fn inv hidden">tan⁻¹</button>
-              <button data-fn="pow10" class="btn fn inv hidden">10ˣ</button>
-              <button data-fn="exp" class="btn fn inv hidden">eˣ</button>
-              <button data-fn="cbrt" class="btn fn inv hidden">∛</button>
+    <div class="footer">
+      <span>Glass Neon Theme</span>
+      <span>Keyboard Ready</span>
+    </div>
+  </div>
 
-              <button data-fn="pow2" class="btn fn">x²</button>
-              <button data-fn="pow3" class="btn fn">x³</button>
-              <button data-value="^" class="btn fn">xʸ</button>
-              <button data-fn="factorial" class="btn fn">x!</button>
-              <button data-value="pi" class="btn fn">π</button>
-              <button data-value="e" class="btn fn">e</button>
+  <script>
+    const display = document.getElementById('display');
+    const historyEl = document.getElementById('history');
 
-              <button data-action="mc" class="btn soft">MC</button>
-              <button data-action="mr" class="btn soft">MR</button>
-              <button data-action="mplus" class="btn soft">M+</button>
-              <button data-action="mminus" class="btn soft">M−</button>
-              <button data-action="ans" class="btn soft">ANS</button>
-              <button data-value="x" class="btn soft">x</button>
-            </div>
+    let current = '0';
+    let previous = null;
+    let operator = null;
+    let waitingForOperand = false;
 
-            <div class="main-grid">
-              <button data-value="7" class="btn">7</button>
-              <button data-value="8" class="btn">8</button>
-              <button data-value="9" class="btn">9</button>
-              <button data-value="/" class="btn op">÷</button>
+    function formatNumber(value) {
+      if (!isFinite(value)) return 'Error';
+      const abs = Math.abs(value);
+      if ((abs >= 1e12 || (abs > 0 && abs < 1e-9))) return value.toExponential(6);
+      const text = String(value);
+      if (text.includes('e')) return value.toExponential(6);
+      const [intPart, decPart] = text.split('.');
+      const formattedInt = Number(intPart).toLocaleString('en-US');
+      return decPart ? `${formattedInt}.${decPart.slice(0,10)}` : formattedInt;
+    }
 
-              <button data-value="4" class="btn">4</button>
-              <button data-value="5" class="btn">5</button>
-              <button data-value="6" class="btn">6</button>
-              <button data-value="*" class="btn op">×</button>
+    function updateDisplay() {
+      display.textContent = current;
+      historyEl.textContent = previous !== null && operator ? `${formatNumber(previous)} ${symbol(operator)}` : '';
+    }
 
-              <button data-value="1" class="btn">1</button>
-              <button data-value="2" class="btn">2</button>
-              <button data-value="3" class="btn">3</button>
-              <button data-value="-" class="btn op">−</button>
+    function symbol(op) {
+      return ({ '/':'÷', '*':'×', '-':'−', '+':'+' })[op] || op;
+    }
 
-              <button data-action="toggle-sign" class="btn">±</button>
-              <button data-value="0" class="btn">0</button>
-              <button data-value="." class="btn">.</button>
-              <button data-value="+" class="btn op">+</button>
+    function inputDigit(digit) {
+      if (waitingForOperand) {
+        current = digit;
+        waitingForOperand = false;
+      } else {
+        current = current === '0' ? digit : current + digit;
+      }
+      updateDisplay();
+    }
 
-              <button data-fn="engineer" class="btn accent wide-left">ENG</button>
-              <button data-fn="scientific" class="btn accent">SCI</button>
-              <button data-action="equals" class="btn primary wide-right">=</button>
-            </div>
-          </div>
-        </div>
+    function inputDecimal() {
+      if (waitingForOperand) {
+        current = '0.';
+        waitingForOperand = false;
+      } else if (!current.includes('.')) {
+        current += '.';
+      }
+      updateDisplay();
+    }
 
-        <div class="glass history-card">
-          <div class="card-header">
-            <h2>최근 계산</h2>
-            <button id="clearHistory" class="mini-link">지우기</button>
-          </div>
-          <div id="historyList" class="history-list"></div>
-        </div>
-      </section>
+    function clearAll() {
+      current = '0';
+      previous = null;
+      operator = null;
+      waitingForOperand = false;
+      historyEl.textContent = '';
+      updateDisplay();
+    }
 
-      <section class="right-stack">
-        <div class="glass tabs-card">
-          <div class="tab-row">
-            <button class="tab-btn active" data-tab="graph">그래프</button>
-            <button class="tab-btn" data-tab="calculus">미적분</button>
-            <button class="tab-btn" data-tab="lab">분석</button>
-          </div>
+    function toggleSign() {
+      if (current === '0') return;
+      current = current.startsWith('-') ? current.slice(1) : '-' + current;
+      updateDisplay();
+    }
 
-          <div class="tab-panel active" data-panel="graph">
-            <div class="form-grid">
-              <label>
-                함수 f(x)
-                <input id="graphExpr" type="text" value="sin(x)" />
-              </label>
-              <label>
-                x 최소
-                <input id="xMin" type="number" value="-10" step="0.5" />
-              </label>
-              <label>
-                x 최대
-                <input id="xMax" type="number" value="10" step="0.5" />
-              </label>
-              <label>
-                샘플 수
-                <input id="samples" type="number" value="800" min="200" max="3000" step="100" />
-              </label>
-            </div>
-            <div class="action-row">
-              <button id="plotBtn" class="action-btn">그래프 그리기</button>
-              <button id="plotDerivativeBtn" class="action-btn ghost-btn">도함수 겹치기</button>
-              <button id="useMainExprBtn" class="action-btn ghost-btn">메인 식 가져오기</button>
-            </div>
-            <div class="canvas-wrap">
-              <canvas id="graphCanvas" width="980" height="480"></canvas>
-            </div>
-            <div id="graphMeta" class="insight-grid"></div>
-          </div>
+    function percent() {
+      const value = parseFloat(current);
+      if (Number.isNaN(value)) return;
+      current = String(value / 100);
+      updateDisplay();
+    }
 
-          <div class="tab-panel" data-panel="calculus">
-            <div class="form-grid two-col">
-              <label>
-                대상 함수 f(x)
-                <input id="calcExpr" type="text" value="x^3 - 3*x + 1" />
-              </label>
-              <label>
-                미분 기준점 x₀
-                <input id="pointX" type="number" value="1" step="0.1" />
-              </label>
-              <label>
-                적분 시작 a
-                <input id="intA" type="number" value="0" step="0.1" />
-              </label>
-              <label>
-                적분 끝 b
-                <input id="intB" type="number" value="3" step="0.1" />
-              </label>
-            </div>
-            <div class="action-row">
-              <button id="analyzeBtn" class="action-btn">미적분 분석</button>
-              <button id="syncCalcBtn" class="action-btn ghost-btn">그래프 함수 가져오기</button>
-            </div>
-            <div class="metric-grid">
-              <div class="metric-box">
-                <span class="metric-label">f(x₀)</span>
-                <strong id="fxValue">-</strong>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">f'(x₀)</span>
-                <strong id="derivativeValue">-</strong>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">∫ab f(x)dx</span>
-                <strong id="integralValue">-</strong>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">접선식</span>
-                <strong id="tangentValue">-</strong>
-              </div>
-            </div>
-            <div class="canvas-wrap small">
-              <canvas id="analysisCanvas" width="980" height="360"></canvas>
-            </div>
-          </div>
+    function calculate(first, second, op) {
+      switch (op) {
+        case '+': return first + second;
+        case '-': return first - second;
+        case '*': return first * second;
+        case '/': return second === 0 ? NaN : first / second;
+        default: return second;
+      }
+    }
 
-          <div class="tab-panel" data-panel="lab">
-            <div class="action-row stacked-mobile">
-              <button id="findRootsBtn" class="action-btn">실근 찾기</button>
-              <button id="criticalBtn" class="action-btn ghost-btn">극값 후보 찾기</button>
-              <button id="inflectionBtn" class="action-btn ghost-btn">변곡 후보 찾기</button>
-            </div>
-            <div id="analysisCards" class="lab-grid"></div>
-            <div class="note-box">
-              수치해석 기반이라 복잡한 함수에서는 근사값이 나옵니다. 그래도 실전 계산용으로 빠르게 감을 잡기 좋습니다.
-            </div>
-          </div>
-        </div>
-      </section>
-    </section>
-  </main>
+    function performOperator(nextOperator) {
+      const inputValue = parseFloat(current);
+      if (previous === null) {
+        previous = inputValue;
+      } else if (operator && !waitingForOperand) {
+        const result = calculate(previous, inputValue, operator);
+        current = Number.isNaN(result) ? 'Error' : formatNumber(result);
+        previous = Number.isNaN(result) ? null : result;
+      }
 
-  <script src="app.js"></script>
+      waitingForOperand = true;
+      operator = nextOperator;
+      updateDisplay();
+    }
+
+    function handleEquals() {
+      if (operator === null || waitingForOperand) return;
+      const inputValue = parseFloat(current);
+      const result = calculate(previous, inputValue, operator);
+      historyEl.textContent = `${formatNumber(previous)} ${symbol(operator)} ${formatNumber(inputValue)} =`;
+      current = Number.isNaN(result) ? 'Error' : formatNumber(result);
+      previous = null;
+      operator = null;
+      waitingForOperand = true;
+      updateDisplay();
+    }
+
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        const action = btn.dataset.action;
+
+        if (value !== undefined) {
+          if (['+', '-', '*', '/'].includes(value)) performOperator(value);
+          else if (value === '.') inputDecimal();
+          else inputDigit(value);
+          return;
+        }
+
+        if (action === 'clear') clearAll();
+        if (action === 'sign') toggleSign();
+        if (action === 'percent') percent();
+        if (action === 'equals') handleEquals();
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const key = e.key;
+      if (/^[0-9]$/.test(key)) inputDigit(key);
+      else if (key === '.') inputDecimal();
+      else if (['+', '-', '*', '/'].includes(key)) performOperator(key);
+      else if (key === 'Enter' || key === '=') handleEquals();
+      else if (key === 'Backspace') {
+        if (!waitingForOperand && current.length > 1) current = current.slice(0, -1);
+        else if (!waitingForOperand) current = '0';
+        updateDisplay();
+      }
+      else if (key.toLowerCase() === 'c' || key === 'Escape') clearAll();
+      else if (key === '%') percent();
+    });
+
+    updateDisplay();
+  </script>
 </body>
 </html>

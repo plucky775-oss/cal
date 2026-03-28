@@ -1,97 +1,125 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나만의 웹 코드 에디터</title>
-    <style>
-        /* 화면 전체를 사용하도록 기본 여백 제거 */
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            height: 100%; 
-            overflow: hidden; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        }
-        
-        /* 상단 헤더(메뉴바) 스타일 지정 */
-        #header { 
-            background-color: #252526; /* VS Code 기본 상단바 색상 */
-            color: #cccccc; 
-            padding: 10px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid #333;
-        }
-
-        /* 에디터가 렌더링될 공간 (헤더 높이를 제외한 나머지 화면 전체) */
-        #editor-container { 
-            width: 100%; 
-            height: calc(100% - 41px); 
-        }
-
-        /* 버튼 스타일 */
-        button { 
-            background-color: #007acc; 
-            color: white; 
-            border: none; 
-            padding: 6px 16px; 
-            cursor: pointer; 
-            border-radius: 3px; 
-            font-weight: bold;
-        }
-        button:hover { 
-            background-color: #005f9e; 
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Engineer Calc Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="bg-grid"></div>
+  <main class="app-shell">
+    <section class="calculator-card">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">ENGINEER MODE</p>
+          <h1>Engineer Calc Pro</h1>
+        </div>
+        <div class="toggles">
+          <button id="angleToggle" class="pill active">DEG</button>
+          <button id="invToggle" class="pill">INV</button>
+        </div>
+      </header>
 
-    <div id="header">
-        <span>🚀 코딩 파트너 웹 에디터</span>
-        <button onclick="getCode()">코드 가져오기</button>
-    </div>
+      <section class="display-wrap">
+        <div class="status-row">
+          <span id="memoryLamp" class="status-chip off">M</span>
+          <span id="modeLabel" class="status-chip">각도: DEG</span>
+          <span id="historyHint" class="status-chip ghost">최근 계산 자동 저장</span>
+        </div>
+        <div id="expression" class="expression"></div>
+        <div id="display" class="display">0</div>
+      </section>
 
-    <div id="editor-container"></div>
+      <section class="keypad-wrap">
+        <div class="function-grid">
+          <button data-action="second" class="btn soft">2nd</button>
+          <button data-action="clear-entry" class="btn soft">CE</button>
+          <button data-action="clear" class="btn soft warn">AC</button>
+          <button data-action="backspace" class="btn soft">⌫</button>
+          <button data-value="(" class="btn soft">(</button>
+          <button data-value=")" class="btn soft">)</button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.js"></script>
-    
-    <script>
-        // 2. Monaco Editor 파일들의 경로를 설정합니다.
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+          <button data-fn="sin" class="btn fn">sin</button>
+          <button data-fn="cos" class="btn fn">cos</button>
+          <button data-fn="tan" class="btn fn">tan</button>
+          <button data-fn="log" class="btn fn">log</button>
+          <button data-fn="ln" class="btn fn">ln</button>
+          <button data-fn="sqrt" class="btn fn">√</button>
 
-        let editor; // 에디터 인스턴스를 저장할 변수
+          <button data-fn="asin" class="btn fn inv hidden">sin⁻¹</button>
+          <button data-fn="acos" class="btn fn inv hidden">cos⁻¹</button>
+          <button data-fn="atan" class="btn fn inv hidden">tan⁻¹</button>
+          <button data-fn="pow10" class="btn fn inv hidden">10ˣ</button>
+          <button data-fn="exp" class="btn fn inv hidden">eˣ</button>
+          <button data-fn="cbrt" class="btn fn inv hidden">∛</button>
 
-        // 3. 메인 에디터 모듈을 불러옵니다.
-        require(['vs/editor/editor.main'], function () {
-            
-            // 4. 컨테이너 요소에 에디터를 생성하고 옵션을 부여합니다.
-            editor = monaco.editor.create(document.getElementById('editor-container'), {
-                value: [
-                    '// 여기에 코드를 작성해보세요!',
-                    'function helloWorld() {',
-                    '\tconsole.log("안녕하세요! 코딩 파트너와 함께 만든 에디터입니다.");',
-                    '}',
-                    '',
-                    'helloWorld();'
-                ].join('\n'),
-                language: 'javascript', // 기본 언어 설정
-                theme: 'vs-dark',       // 어두운 테마 설정 ('vs'는 밝은 테마)
-                automaticLayout: true,  // 브라우저 창 크기가 변할 때 에디터 크기도 자동 조절
-                minimap: { enabled: true }, // 우측 미니맵 활성화 여부
-                fontSize: 16            // 코드 폰트 크기
-            });
-        });
+          <button data-fn="pow2" class="btn fn">x²</button>
+          <button data-fn="pow3" class="btn fn">x³</button>
+          <button data-value="^" class="btn fn">xʸ</button>
+          <button data-fn="factorial" class="btn fn">x!</button>
+          <button data-value="pi" class="btn fn">π</button>
+          <button data-value="e" class="btn fn">e</button>
 
-        // 5. 버튼 클릭 시 에디터에 적힌 코드를 가져오는 함수
-        function getCode() {
-            if (editor) {
-                const currentCode = editor.getValue(); // 에디터의 텍스트를 추출
-                console.log("현재 작성된 코드:\n", currentCode);
-                alert("작성된 코드를 브라우저 개발자 도구(F12) 콘솔에 출력했습니다!");
-            }
-        }
-    </script>
+          <button data-action="mc" class="btn soft">MC</button>
+          <button data-action="mr" class="btn soft">MR</button>
+          <button data-action="mplus" class="btn soft">M+</button>
+          <button data-action="mminus" class="btn soft">M−</button>
+          <button data-action="ans" class="btn soft">ANS</button>
+          <button data-value="%" class="btn soft">%</button>
+        </div>
+
+        <div class="main-grid">
+          <button data-value="7" class="btn">7</button>
+          <button data-value="8" class="btn">8</button>
+          <button data-value="9" class="btn">9</button>
+          <button data-value="/" class="btn op">÷</button>
+
+          <button data-value="4" class="btn">4</button>
+          <button data-value="5" class="btn">5</button>
+          <button data-value="6" class="btn">6</button>
+          <button data-value="*" class="btn op">×</button>
+
+          <button data-value="1" class="btn">1</button>
+          <button data-value="2" class="btn">2</button>
+          <button data-value="3" class="btn">3</button>
+          <button data-value="-" class="btn op">−</button>
+
+          <button data-action="toggle-sign" class="btn">±</button>
+          <button data-value="0" class="btn">0</button>
+          <button data-value="." class="btn">.</button>
+          <button data-value="+" class="btn op">+</button>
+
+          <button data-fn="engineer" class="btn accent wide-left">ENG</button>
+          <button data-fn="scientific" class="btn accent">SCI</button>
+          <button data-action="equals" class="btn primary wide-right">=</button>
+        </div>
+      </section>
+    </section>
+
+    <aside class="side-panel">
+      <section class="info-card">
+        <h2>빠른 기능</h2>
+        <ul>
+          <li>DEG/RAD 전환</li>
+          <li>공학 표기 자동 변환</li>
+          <li>최근 계산 기록</li>
+          <li>메모리 저장 기능</li>
+        </ul>
+      </section>
+      <section class="info-card history-card">
+        <div class="history-header">
+          <h2>최근 계산</h2>
+          <button id="clearHistory" class="mini-link">지우기</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
